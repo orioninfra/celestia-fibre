@@ -7,13 +7,15 @@
 <p align="center">
   <img src="https://img.shields.io/badge/NETWORK-celestia%20mainnet%20beta-black?style=flat-square"/>
   <img src="https://img.shields.io/badge/RELEASE-v10.4.0-grey?style=flat-square"/>
-  <img src="https://img.shields.io/badge/ACTIVATION-block%2015116658-grey?style=flat-square"/>
+  <img src="https://img.shields.io/badge/V10-live%20since%20Oct%2020%2C%202026-grey?style=flat-square"/>
   <a href="https://docs.celestia.org/operate/consensus-validators/fibre/"><img src="https://img.shields.io/badge/SOURCE-docs.celestia.org-lightgrey?style=flat-square"/></a>
 </p>
 
 ---
 
 Starting with app version 10, every bonded Celestia validator is expected to run a **Fibre server**: a separate data availability service that receives blob shards from clients, stores them for the retention window, and serves them back.
+
+> **v10 is live on Mainnet Beta.** It activated on Oct 20, 2026 at upgrade height `15116658`. If your Fibre server is not running and registered yet, go to [section 03](#03--after-activation-order-matters).
 
 This page collects what we consider the right way to run it. The official docs explain *how*; this is *what to choose* and *what tends to break*. Every recommendation is based on the celestia-app `v10.4.0` documentation and Foundation notices; links are at the bottom.
 
@@ -29,7 +31,7 @@ This page collects what we consider the right way to run it. The official docs e
 |---|---|
 | Sep 15, 2026 | Requirements sheet published. Mocha and Mainnet Beta both start at **148 MB/s** |
 | Oct 14, 2026 | Mainnet Beta Fibre server setup notice |
-| block `15116658` | app version 10 activates on Mainnet Beta, `x/fibre` and `x/valaddr` go live |
+| Oct 20, 2026 | **app version 10 activated on Mainnet Beta** at upgrade height `15116658` (first v10 block `15116659`, 03:45 UTC). `x/fibre` and `x/valaddr` are live |
 | November (target) | possible raise to **2.2 GB/s**. The Foundation will give notice before validators must provision for it |
 
 Size bandwidth and disk with the Foundation's calculator sheet, not with a rule of thumb: the numbers depend on your voting power and the target throughput, and both change. Make your own copy of the sheet so you can rerun it.
@@ -64,7 +66,7 @@ Size bandwidth and disk with the Foundation's calculator sheet, not with a rule 
 
 ##  02 — Before activation
 
-Prepare everything that does not need v10 to be live.
+Prepare everything that does not need v10 to be live. Mainnet is already on v10, but the checklist still applies to anyone setting up Fibre now, and to Mocha.
 
 * install the `fibre` binary from the **same** celestia-app release, verify `checksums.txt`, check `fibre version`
 * on Linux use glibc **2.34+** (Ubuntu 22.04, Debian 12). On arm64 the archive is named `arm64`, even though `uname -m` prints `aarch64`
