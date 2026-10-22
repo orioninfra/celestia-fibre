@@ -6,7 +6,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/NETWORK-celestia%20mainnet%20beta-black?style=flat-square"/>
-  <img src="https://img.shields.io/badge/RELEASE-v10.4.0-grey?style=flat-square"/>
+  <img src="https://img.shields.io/badge/RELEASE-v10.5.0-grey?style=flat-square"/>
   <img src="https://img.shields.io/badge/V10-live%20since%20Oct%2020%2C%202026-grey?style=flat-square"/>
   <a href="https://docs.celestia.org/operate/consensus-validators/fibre/"><img src="https://img.shields.io/badge/SOURCE-docs.celestia.org-lightgrey?style=flat-square"/></a>
 </p>
@@ -17,7 +17,7 @@ Starting with app version 10, every bonded Celestia validator is expected to run
 
 > **v10 is live on Mainnet Beta.** It activated on Oct 20, 2026 at upgrade height `15116658`. If your Fibre server is not running and registered yet, go to [section 03](#03--after-activation-order-matters).
 
-This page collects what we consider the right way to run it. The official docs explain *how*; this is *what to choose* and *what tends to break*. Every recommendation is based on the celestia-app `v10.4.0` documentation and Foundation notices; links are at the bottom.
+This page collects what we consider the right way to run it. The official docs explain *how*; this is *what to choose* and *what tends to break*. Every recommendation is based on the celestia-app `v10.5.0` documentation and Foundation notices; links are at the bottom.
 
 <p align="center">
   <i>separate host • loopback or mTLS • colocated storage • watch the signer</i>
