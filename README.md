@@ -6,7 +6,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/NETWORK-celestia%20mainnet%20beta-black?style=flat-square"/>
-  <img src="https://img.shields.io/badge/RELEASE-v10.4.0-grey?style=flat-square"/>
+  <img src="https://img.shields.io/badge/RELEASE-v10.5.0-grey?style=flat-square"/>
   <img src="https://img.shields.io/badge/V10-live%20since%20Oct%2020%2C%202026-grey?style=flat-square"/>
   <a href="https://docs.celestia.org/operate/consensus-validators/fibre/"><img src="https://img.shields.io/badge/SOURCE-docs.celestia.org-lightgrey?style=flat-square"/></a>
 </p>
@@ -17,7 +17,7 @@ Starting with app version 10, every bonded Celestia validator is expected to run
 
 > **v10 is live on Mainnet Beta.** It activated on Oct 20, 2026 at upgrade height `15116658`. If your Fibre server is not running and registered yet, go to [section 03](#03--after-activation-order-matters).
 
-This page collects what we consider the right way to run it. The official docs explain *how*; this is *what to choose* and *what tends to break*. Every recommendation is based on the celestia-app `v10.4.0` documentation and Foundation notices; links are at the bottom.
+This page collects what we consider the right way to run it. The official docs explain *how*; this is *what to choose* and *what tends to break*. Every recommendation is based on the celestia-app `v10.5.0` documentation and Foundation notices; links are at the bottom.
 
 <p align="center">
   <i>separate host • loopback or mTLS • colocated storage • watch the signer</i>
@@ -32,7 +32,7 @@ This page collects what we consider the right way to run it. The official docs e
 | Sep 15, 2026 | Requirements sheet published. Mocha and Mainnet Beta both start at **148 MB/s** |
 | Oct 14, 2026 | Mainnet Beta Fibre server setup notice |
 | Oct 20, 2026 | **app version 10 activated on Mainnet Beta** at upgrade height `15116658` (first v10 block `15116659`, 03:45 UTC). `x/fibre` and `x/valaddr` are live |
-| Oct 21, 2026 | `v10.5.0` tagged, and Mocha already runs `v10.5.0-mocha`. Mainnet Beta still uses **`v10.4.0`** until an upgrade is announced. This page will be updated then |
+| Oct 22, 2026 | **`v10.5.0` released** and now the recommended Mainnet Beta release (Mocha: `v10.5.0-mocha`). It adds gRPC health checks to the Fibre server ([section 07](#07--monitoring)), object storage fixes and shorter idle connection timeouts. Upgrade both `celestia-appd` and `fibre` |
 | November (target) | possible raise to **2.2 GB/s**. The Foundation will give notice before validators must provision for it |
 
 Size bandwidth and disk with the Foundation's calculator sheet, not with a rule of thumb: the numbers depend on your voting power and the target throughput, and both change. Make your own copy of the sheet so you can rerun it.
@@ -178,6 +178,23 @@ Fibre exports metrics and traces over OTLP/HTTP (`--otel-endpoint`, base URL onl
 - For a view from the outside, community dashboards already track reachability and endorsements: **Valopers** and **Tensile** by Huginn Tech.
 - Keep `--pprof` off by default. When you need it, bind it to `localhost` only.
 
+### Health checks (from v10.5.0)
+
+The server answers the standard gRPC health service on its normal port, `7980`. The port is TLS-only with a self-signed identity certificate, so the probe must skip verification:
+
+```bash
+go install github.com/grpc-ecosystem/grpc-health-probe@latest
+grpc_health_probe -addr=127.0.0.1:7980 -tls -tls-no-verify                          # ready: can accept new uploads
+grpc_health_probe -addr=127.0.0.1:7980 -tls -tls-no-verify -service=fibre-liveness   # alive: process is answering
+```
+
+The probe exits `0` on `SERVING`. Readiness runs six checks every `10s`: `app`, `fibre_module`, `signer`, `validator`, `registration` and `store`. When one fails, the log names it with a reason code such as `provider_not_registered` or `chain_stalled`.
+
+* wire **readiness** into your alerting and **liveness** into the service manager. Polling only reads cached results, so it adds no load
+* when the app node or signer is down, readiness drops but downloads of stored shards keep working
+* tune `max_block_age` (default `2m`, in the `[health]` table) to the network's block time
+* health checks cannot see your **public** address from the inside. Keep probing `host:7980` from another machine, and run a small upload canary with a funded escrow account
+
 ---
 
 ##  08 — Upgrades
@@ -185,12 +202,14 @@ Fibre exports metrics and traces over OTLP/HTTP (`--otel-endpoint`, base URL onl
 * the `fibre` version must match the celestia-app release it ships with
 * new config fields do not appear in an existing `server_config.toml` by themselves. After every upgrade run `celestia-appd config sync --fibre-home <fibre_home> --dry-run`, review the diff, then run it without `--dry-run`. It keeps your values and backs up the file
 * unknown keys make Fibre fail at startup. Fix typos before restarting
-* the first `SIGTERM` shuts down gracefully, a second one forces it. Give systemd enough `TimeoutStopSec`
+* the first `SIGTERM` shuts down gracefully: readiness goes to `NOT_SERVING` first, then requests drain. A second signal forces it. Give systemd enough `TimeoutStopSec`
 * restarting rotates the TLS certificate automatically. There is nothing to renew
 
 ---
 
 ##  09 — When something is off
+
+From v10.5.0, start with the readiness probe from section 07. When the server is not ready, its log names the failing check.
 
 | Symptom | First check |
 |---|---|
@@ -207,7 +226,7 @@ Fibre exports metrics and traces over OTLP/HTTP (`--otel-endpoint`, base URL onl
 
 - [Fibre server setup, Celestia docs](https://docs.celestia.org/operate/consensus-validators/fibre/)
 - [Fibre monitoring, Celestia docs](https://docs.celestia.org/operate/consensus-validators/fibre/metrics/)
-- [`fibre/cmd/README.md`, celestia-app v10.4.0](https://github.com/celestiaorg/celestia-app/blob/v10.4.0/fibre/cmd/README.md)
+- [`fibre/cmd/README.md`, celestia-app v10.5.0](https://github.com/celestiaorg/celestia-app/blob/v10.5.0/fibre/cmd/README.md)
 - [CPU requirements tool, celestia-app](https://github.com/celestiaorg/celestia-app/blob/main/tools/cpu_requirements/README.md)
 - [Mainnet Beta Fibre server setup, status.celestia.org](https://status.celestia.org/incidents/01M4XAT1AAHAM0QDR3623CE662)
 - [Mocha and Mainnet Beta Fibre requirements sheet, status.celestia.org](https://status.celestia.org/incidents/01M2JMQ568VR39JYH97QFKGT02)
@@ -225,3 +244,4 @@ Fibre is moving fast. If something here no longer matches the current release, t
 <p align="center">
   <a href="https://orionlabsone.cc">orionlabsone.cc</a> · <a href="https://orionlabsone.cc/celestia">celestia daily brief</a> · <a href="https://github.com/orioninfra">github.com/orioninfra</a>
 </p>
+
