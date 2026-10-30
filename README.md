@@ -232,7 +232,7 @@ From v10.5.0, start with the readiness probe from section 07. When the server is
 - [Mocha and Mainnet Beta Fibre requirements sheet, status.celestia.org](https://status.celestia.org/incidents/01M2JMQ568VR39JYH97QFKGT02)
 - [Introducing Fibre, Celestia blog](https://blog.celestia.org/introducing-fibre-1tb-s-of-blockspace/)
 
-Fibre is moving fast. If something here no longer matches the current release, the official docs win. Open an issue and we will update the page.
+Fibre is moving fast. If something here no longer matches the current release, the official docs win. Open an issue and we will update the page. Past updates are listed in [UPDATES.md](UPDATES.md).
 
 ---
 
@@ -244,4 +244,3 @@ Fibre is moving fast. If something here no longer matches the current release, t
 <p align="center">
   <a href="https://orionlabsone.cc">orionlabsone.cc</a> · <a href="https://orionlabsone.cc/celestia">celestia daily brief</a> · <a href="https://github.com/orioninfra">github.com/orioninfra</a>
 </p>
-
