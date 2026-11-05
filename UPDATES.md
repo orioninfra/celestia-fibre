@@ -2,6 +2,14 @@
 
 What changed on this page and why. The newest entries are at the top.
 
+## 2026-11-05: v10.6.0
+
+- Timeline: `v10.6.0` is released for Mainnet Beta, and Mocha upgraded to `v10.6.0-mocha`. It is a minor update without an upgrade height, but operators are asked to upgrade promptly. The mainnet announcement is pending.
+- Section 02: glibc requirements are now split. `fibre` needs 2.34+, and the `celestia-appd` multiplexer needs 2.38+.
+- Section 06: since `v10.5.0` the object storage endpoint must be `https://`, and the bucket is checked at startup.
+- Section 08: covers how to roll out minor v10 releases and which Go version source builds need.
+- Section 09: added a row for startup failures caused by the object storage changes.
+
 ## 2026-10-26: v10.5.0
 
 - `v10.5.0` is now the recommended Mainnet Beta release (Mocha: `v10.5.0-mocha`). The release badge, intro and source links were updated.
