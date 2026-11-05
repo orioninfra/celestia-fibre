@@ -33,6 +33,7 @@ This page collects what we consider the right way to run it. The official docs e
 | Oct 14, 2026 | Mainnet Beta Fibre server setup notice |
 | Oct 20, 2026 | **app version 10 activated on Mainnet Beta** at upgrade height `15116658` (first v10 block `15116659`, 03:45 UTC). `x/fibre` and `x/valaddr` are live |
 | Oct 22, 2026 | **`v10.5.0` released** and now the recommended Mainnet Beta release (Mocha: `v10.5.0-mocha`). It adds gRPC health checks to the Fibre server ([section 07](#07--monitoring)), object storage fixes and shorter idle connection timeouts. Upgrade both `celestia-appd` and `fibre` |
+| Nov 5, 2026 | **`v10.6.0` released** for Mainnet Beta, and Mocha upgraded to `v10.6.0-mocha` the same day. It is a minor update with no coordinated height, but the release asks operators to **upgrade promptly**: it brings celestia-core `v0.42.8` (consensus, p2p, mempool and RPC fixes) and Fibre escrow fixes. No config changes. The mainnet announcement is still pending, and the docs list `v10.5.0` until then |
 | November (target) | possible raise to **2.2 GB/s**. The Foundation will give notice before validators must provision for it |
 
 Size bandwidth and disk with the Foundation's calculator sheet, not with a rule of thumb: the numbers depend on your voting power and the target throughput, and both change. Make your own copy of the sheet so you can rerun it.
@@ -70,7 +71,7 @@ Size bandwidth and disk with the Foundation's calculator sheet, not with a rule 
 Prepare everything that does not need v10 to be live. Mainnet is already on v10, but the checklist still applies to anyone setting up Fibre now, and to Mocha.
 
 * install the `fibre` binary from the **same** celestia-app release, verify `checksums.txt`, check `fibre version`
-* on Linux use glibc **2.34+** (Ubuntu 22.04, Debian 12). On arm64 the archive is named `arm64`, even though `uname -m` prints `aarch64`
+* the `fibre` binary needs glibc **2.34+** (Ubuntu 22.04, Debian 12), but the `celestia-appd` multiplexer needs **2.38+** (Ubuntu 24.04). On arm64 the archive is named `arm64`, even though `uname -m` prints `aarch64`
 * put Fibre's home (`--home` / `FIBRE_HOME`) on a **different disk** from celestia-app data, so growth in one cannot fill the other
 * in `app.toml`, set `[grpc] enable = true`. A fresh config ships with it off
 * in `config.toml`, check `priv_validator_grpc_laddr`. Use `127.0.0.1` or `[::1]`, **not** `localhost`, which newer builds no longer treat as loopback. An empty value disables the service
@@ -149,6 +150,7 @@ Leave `min_upload_size` at its default (256 KiB) unless validators agree on a ch
 
 Local disk is the default and the simplest. If you use object storage (S3, R2):
 
+* since `v10.5.0` the `endpoint` **must be `https://`**. Fibre also checks at startup that the bucket is reachable with the configured credentials, and refuses to start otherwise. Review both before you restart on a new binary
 * create the bucket in the **same region** as the Fibre host. A remote bucket adds seconds of latency and causes missed endorsements
 * the metadata database still needs a persistent **local** disk
 * credentials come from the environment only. For systemd, put them in `/etc/fibre/s3.env` (root, `0600`) and add `EnvironmentFile=` with `systemctl edit fibre.service`. Fibre refuses to start without them
@@ -200,6 +202,8 @@ The probe exits `0` on `SERVING`. Readiness runs six checks every `10s`: `app`, 
 ##  08 — Upgrades
 
 * the `fibre` version must match the celestia-app release it ships with
+* minor v10 releases (`v10.5.0`, `v10.6.0`) have no upgrade height. Stop Fibre and the node, swap **both** binaries, restart, then confirm the node signs and Fibre reports ready
+* source builds follow the Go version in the release notes: **Go 1.26.10** for `v10.6.0`, 1.26.6 for `v10.5.0`
 * new config fields do not appear in an existing `server_config.toml` by themselves. After every upgrade run `celestia-appd config sync --fibre-home <fibre_home> --dry-run`, review the diff, then run it without `--dry-run`. It keeps your values and backs up the file
 * unknown keys make Fibre fail at startup. Fix typos before restarting
 * the first `SIGTERM` shuts down gracefully: readiness goes to `NOT_SERVING` first, then requests drain. A second signal forces it. Give systemd enough `TimeoutStopSec`
@@ -218,6 +222,7 @@ From v10.5.0, start with the readiness probe from section 07. When the server is
 | TLS identity verification failed | the signer address points at a node without your consensus key, then restart Fibre |
 | `payment promise verification failed` | chain ID mismatch between Fibre's node and the client. Escrow and stale height issues are on the client's side |
 | `unknown service cosmos.base.tendermint...` | wrong gRPC address (RPC instead of app gRPC), or v10 is not active yet |
+| won't start after upgrading to `v10.5.0`+ | object storage `endpoint` is `http://`, or the bucket is not reachable with the current credentials (section 06) |
 | `object namespace mismatch` | the bucket or prefix changed while object shards remain. Restore it, or migrate as in section 06 |
 
 ---
