@@ -6,7 +6,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/NETWORK-celestia%20mainnet%20beta-black?style=flat-square"/>
-  <img src="https://img.shields.io/badge/RELEASE-v10.5.0-grey?style=flat-square"/>
+  <img src="https://img.shields.io/badge/RELEASE-v10.6.0-grey?style=flat-square"/>
   <img src="https://img.shields.io/badge/V10-live%20since%20Oct%2020%2C%202026-grey?style=flat-square"/>
   <a href="https://docs.celestia.org/operate/consensus-validators/fibre/"><img src="https://img.shields.io/badge/SOURCE-docs.celestia.org-lightgrey?style=flat-square"/></a>
 </p>
@@ -17,7 +17,7 @@ Starting with app version 10, every bonded Celestia validator is expected to run
 
 > **v10 is live on Mainnet Beta.** It activated on Oct 20, 2026 at upgrade height `15116658`. If your Fibre server is not running and registered yet, go to [section 03](#03--after-activation-order-matters).
 
-This page collects what we consider the right way to run it. The official docs explain *how*; this is *what to choose* and *what tends to break*. Every recommendation is based on the celestia-app `v10.5.0` documentation and Foundation notices; links are at the bottom.
+This page collects what we consider the right way to run it. The official docs explain *how*; this is *what to choose* and *what tends to break*. Every recommendation is based on the celestia-app `v10.6.0` documentation and Foundation notices; links are at the bottom.
 
 <p align="center">
   <i>separate host • loopback or mTLS • colocated storage • watch the signer</i>
@@ -33,7 +33,8 @@ This page collects what we consider the right way to run it. The official docs e
 | Oct 14, 2026 | Mainnet Beta Fibre server setup notice |
 | Oct 20, 2026 | **app version 10 activated on Mainnet Beta** at upgrade height `15116658` (first v10 block `15116659`, 03:45 UTC). `x/fibre` and `x/valaddr` are live |
 | Oct 22, 2026 | **`v10.5.0` released** and now the recommended Mainnet Beta release (Mocha: `v10.5.0-mocha`). It adds gRPC health checks to the Fibre server ([section 07](#07--monitoring)), object storage fixes and shorter idle connection timeouts. Upgrade both `celestia-appd` and `fibre` |
-| Nov 5, 2026 | **`v10.6.0` released** for Mainnet Beta, and Mocha upgraded to `v10.6.0-mocha` the same day. It is a minor update with no coordinated height, but the release asks operators to **upgrade promptly**: it brings celestia-core `v0.42.8` (consensus, p2p, mempool and RPC fixes) and Fibre escrow fixes. No config changes. The mainnet announcement is still pending, and the docs list `v10.5.0` until then |
+| Nov 5, 2026 | **`v10.6.0` released** for Mainnet Beta, and Mocha upgraded to `v10.6.0-mocha` the same day. It is a minor update with no coordinated height, but the release asks operators to **upgrade promptly**: it brings celestia-core `v0.42.8` (consensus, p2p, mempool and RPC fixes) and Fibre escrow fixes. No config changes |
+| Nov 9, 2026 | **`v10.6.0` announced for Mainnet Beta**: [upgrade notice](https://status.celestia.org/incidents/01M70FDG0Z6ZJY6J7M04VB33NT). Upgrade **both** the consensus node and Fibre as soon as possible |
 | November (target) | possible raise to **2.2 GB/s**. The Foundation will give notice before validators must provision for it |
 
 Size bandwidth and disk with the Foundation's calculator sheet, not with a rule of thumb: the numbers depend on your voting power and the target throughput, and both change. Make your own copy of the sheet so you can rerun it.
@@ -231,7 +232,8 @@ From v10.5.0, start with the readiness probe from section 07. When the server is
 
 - [Fibre server setup, Celestia docs](https://docs.celestia.org/operate/consensus-validators/fibre/)
 - [Fibre monitoring, Celestia docs](https://docs.celestia.org/operate/consensus-validators/fibre/metrics/)
-- [`fibre/cmd/README.md`, celestia-app v10.5.0](https://github.com/celestiaorg/celestia-app/blob/v10.5.0/fibre/cmd/README.md)
+- [`fibre/cmd/README.md`, celestia-app v10.6.0](https://github.com/celestiaorg/celestia-app/blob/v10.6.0/fibre/cmd/README.md)
+- [Mainnet Beta v10.6.0 upgrade, status.celestia.org](https://status.celestia.org/incidents/01M70FDG0Z6ZJY6J7M04VB33NT)
 - [CPU requirements tool, celestia-app](https://github.com/celestiaorg/celestia-app/blob/main/tools/cpu_requirements/README.md)
 - [Mainnet Beta Fibre server setup, status.celestia.org](https://status.celestia.org/incidents/01M4XAT1AAHAM0QDR3623CE662)
 - [Mocha and Mainnet Beta Fibre requirements sheet, status.celestia.org](https://status.celestia.org/incidents/01M2JMQ568VR39JYH97QFKGT02)
@@ -249,3 +251,4 @@ Fibre is moving fast. If something here no longer matches the current release, t
 <p align="center">
   <a href="https://orionlabsone.cc">orionlabsone.cc</a> · <a href="https://orionlabsone.cc/celestia">celestia daily brief</a> · <a href="https://github.com/orioninfra">github.com/orioninfra</a>
 </p>
+
