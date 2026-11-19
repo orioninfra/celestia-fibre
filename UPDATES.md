@@ -2,7 +2,19 @@
 
 What changed on this page and why. The newest entries are at the top.
 
-## 2026-11-05: v10.6.0
+## 2026-11-19: v11.0.0, app version 11
+
+- `v11.0.0` is an emergency, coordinated upgrade to app version 11, announced for Mainnet Beta on Nov 19, 2026. It restricts the accounts whose keys were exposed in the Keplr/Web3Auth incident. The release badge, intro and source links now point to it.
+- Timeline: added the announcement, what changes, and that bridge and light nodes need celestia-node `v0.36.0`.
+- Section 08: covers how a new app version differs from a minor release, with the signal, tally and upgrade-height commands, the 5/6 threshold, the 232,616-block delay, and running the matching `fibre` binary.
+- Fibre's own documentation and config did not change between `v10.6.0` and `v11.0.0`.
+
+## 2026-11-10: v10.6.0 on Mainnet Beta
+
+- `v10.6.0` was announced for Mainnet Beta on Nov 9, 2026. It is now the recommended release, and the release badge, intro and source links were updated.
+- Timeline: added the announcement, with a link to the upgrade notice.
+
+## 2026-11-05: v10.6.0 released
 
 - Timeline: `v10.6.0` is released for Mainnet Beta, and Mocha upgraded to `v10.6.0-mocha`. It is a minor update without an upgrade height, but operators are asked to upgrade promptly. The mainnet announcement is pending.
 - Section 02: glibc requirements are now split. `fibre` needs 2.34+, and the `celestia-appd` multiplexer needs 2.38+.
