@@ -6,7 +6,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/NETWORK-celestia%20mainnet%20beta-black?style=flat-square"/>
-  <img src="https://img.shields.io/badge/RELEASE-v10.6.0-grey?style=flat-square"/>
+  <img src="https://img.shields.io/badge/RELEASE-v11.0.0-grey?style=flat-square"/>
   <img src="https://img.shields.io/badge/V10-live%20since%20Oct%2020%2C%202026-grey?style=flat-square"/>
   <a href="https://docs.celestia.org/operate/consensus-validators/fibre/"><img src="https://img.shields.io/badge/SOURCE-docs.celestia.org-lightgrey?style=flat-square"/></a>
 </p>
@@ -17,7 +17,7 @@ Starting with app version 10, every bonded Celestia validator is expected to run
 
 > **v10 is live on Mainnet Beta.** It activated on Oct 20, 2026 at upgrade height `15116658`. If your Fibre server is not running and registered yet, go to [section 03](#03--after-activation-order-matters).
 
-This page collects what we consider the right way to run it. The official docs explain *how*; this is *what to choose* and *what tends to break*. Every recommendation is based on the celestia-app `v10.6.0` documentation and Foundation notices; links are at the bottom.
+This page collects what we consider the right way to run it. The official docs explain *how*; this is *what to choose* and *what tends to break*. Every recommendation is based on the celestia-app `v11.0.0` documentation and Foundation notices; links are at the bottom.
 
 <p align="center">
   <i>separate host • loopback or mTLS • colocated storage • watch the signer</i>
@@ -35,6 +35,7 @@ This page collects what we consider the right way to run it. The official docs e
 | Oct 22, 2026 | **`v10.5.0` released** and now the recommended Mainnet Beta release (Mocha: `v10.5.0-mocha`). It adds gRPC health checks to the Fibre server ([section 07](#07--monitoring)), object storage fixes and shorter idle connection timeouts. Upgrade both `celestia-appd` and `fibre` |
 | Nov 5, 2026 | **`v10.6.0` released** for Mainnet Beta, and Mocha upgraded to `v10.6.0-mocha` the same day. It is a minor update with no coordinated height, but the release asks operators to **upgrade promptly**: it brings celestia-core `v0.42.8` (consensus, p2p, mempool and RPC fixes) and Fibre escrow fixes. No config changes |
 | Nov 9, 2026 | **`v10.6.0` announced for Mainnet Beta**: [upgrade notice](https://status.celestia.org/incidents/01M70FDG0Z6ZJY6J7M04VB33NT). Upgrade **both** the consensus node and Fibre as soon as possible |
+| Nov 19, 2026 | **`v11.0.0` announced for Mainnet Beta**: [upgrade notice](https://status.celestia.org/incidents/01M7T4VX6XKB3QERTA0AEYT02D). This is an **emergency, coordinated** upgrade to **app version 11**. It restricts 41,963 accounts whose keys were exposed in the Keplr/Web3Auth incident, so they can only send funds to Web3Auth's recovery address. Install `celestia-appd` **and** `fibre` `v11.0.0`, then signal for version 11 ([section 08](#08--upgrades)). Fibre needs no config changes. Bridge and light nodes need celestia-node `v0.36.0` |
 | November (target) | possible raise to **2.2 GB/s**. The Foundation will give notice before validators must provision for it |
 
 Size bandwidth and disk with the Foundation's calculator sheet, not with a rule of thumb: the numbers depend on your voting power and the target throughput, and both change. Make your own copy of the sheet so you can rerun it.
@@ -203,8 +204,18 @@ The probe exits `0` on `SERVING`. Readiness runs six checks every `10s`: `app`, 
 ##  08 — Upgrades
 
 * the `fibre` version must match the celestia-app release it ships with
-* minor v10 releases (`v10.5.0`, `v10.6.0`) have no upgrade height. Stop Fibre and the node, swap **both** binaries, restart, then confirm the node signs and Fibre reports ready
-* source builds follow the Go version in the release notes: **Go 1.26.10** for `v10.6.0`, 1.26.6 for `v10.5.0`
+* minor releases (`v10.5.0`, `v10.6.0`) have no upgrade height. Stop Fibre and the node, swap **both** binaries, restart, then confirm the node signs and Fibre reports ready
+* a new **app version** (`v11.0.0` → app version 11) is a coordinated upgrade. Swap both binaries the same way. The multiplexer keeps serving the old app version until activation. Then signal:
+
+```bash
+celestia-appd tx signal signal 11 --from <validator_wallet> --chain-id celestia --fees 210000utia
+celestia-appd query signal tally 11      # how much voting power has signalled
+celestia-appd query signal upgrade       # the activation height, once scheduled
+```
+
+* once at least 5/6 of the voting power has signalled, anyone can submit `celestia-appd tx signal try-upgrade` (use `--gas 1000000`). The upgrade activates **232,616 blocks** later, about 7.6 days at the current ~2.84 s block time
+* do not wait for the activation height to swap Fibre. Run the `v11.0.0` `fibre` binary together with `v11.0.0` `celestia-appd`
+* source builds follow the Go version in the release notes: **Go 1.26.10** for `v10.6.0` and `v11.0.0` (from `v11.0.0` the Makefile downloads it for you), 1.26.6 for `v10.5.0`
 * new config fields do not appear in an existing `server_config.toml` by themselves. After every upgrade run `celestia-appd config sync --fibre-home <fibre_home> --dry-run`, review the diff, then run it without `--dry-run`. It keeps your values and backs up the file
 * unknown keys make Fibre fail at startup. Fix typos before restarting
 * the first `SIGTERM` shuts down gracefully: readiness goes to `NOT_SERVING` first, then requests drain. A second signal forces it. Give systemd enough `TimeoutStopSec`
@@ -232,7 +243,9 @@ From v10.5.0, start with the readiness probe from section 07. When the server is
 
 - [Fibre server setup, Celestia docs](https://docs.celestia.org/operate/consensus-validators/fibre/)
 - [Fibre monitoring, Celestia docs](https://docs.celestia.org/operate/consensus-validators/fibre/metrics/)
-- [`fibre/cmd/README.md`, celestia-app v10.6.0](https://github.com/celestiaorg/celestia-app/blob/v10.6.0/fibre/cmd/README.md)
+- [`fibre/cmd/README.md`, celestia-app v11.0.0](https://github.com/celestiaorg/celestia-app/blob/v11.0.0/fibre/cmd/README.md)
+- [celestia-app v11.0.0 release notes](https://github.com/celestiaorg/celestia-app/releases/tag/v11.0.0)
+- [Mainnet Beta v11.0.0 upgrade, status.celestia.org](https://status.celestia.org/incidents/01M7T4VX6XKB3QERTA0AEYT02D)
 - [Mainnet Beta v10.6.0 upgrade, status.celestia.org](https://status.celestia.org/incidents/01M70FDG0Z6ZJY6J7M04VB33NT)
 - [CPU requirements tool, celestia-app](https://github.com/celestiaorg/celestia-app/blob/main/tools/cpu_requirements/README.md)
 - [Mainnet Beta Fibre server setup, status.celestia.org](https://status.celestia.org/incidents/01M4XAT1AAHAM0QDR3623CE662)
@@ -251,4 +264,3 @@ Fibre is moving fast. If something here no longer matches the current release, t
 <p align="center">
   <a href="https://orionlabsone.cc">orionlabsone.cc</a> · <a href="https://orionlabsone.cc/celestia">celestia daily brief</a> · <a href="https://github.com/orioninfra">github.com/orioninfra</a>
 </p>
-
